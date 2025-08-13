@@ -1,24 +1,44 @@
+"""Configuration module.
+
+Environment variables are loaded from a local ``.env`` file on import so that
+the ``Cfg`` class below reflects those values immediately. Boolean values use a
+helper that understands common truthy strings.
+"""
+
+from dotenv import load_dotenv
 import os
-def _b(k, d): return str(os.getenv(k, d)).strip().lower() in ("1","true","yes","on")
+
+
+load_dotenv()
+
+
+def _b(key: str, default) -> bool:
+    """Parse an environment variable as a boolean."""
+
+    return str(os.getenv(key, default)).strip().lower() in ("1", "true", "yes", "on")
+
+
 class Cfg:
-    BROKER_MODE = os.getenv("BROKER_MODE","live")
+    """Configuration values used throughout the bot."""
+
+    BROKER_MODE = os.getenv("BROKER_MODE", "live")
     DRY_RUN = _b("DRY_RUN", True)
-    EQUITY_USD = float(os.getenv("EQUITY_USD","5000"))
-    API_KEY_BINANCE = os.getenv("API_KEY_BINANCE","")
-    API_SECRET_BINANCE = os.getenv("API_SECRET_BINANCE","")
-    API_KEY_BYBIT = os.getenv("API_KEY_BYBIT","")
-    API_SECRET_BYBIT = os.getenv("API_SECRET_BYBIT","")
-    SYMBOL = os.getenv("SYMBOL","BTC/USDT")
-    POLL_SECONDS = int(os.getenv("POLL_SECONDS","900"))
-    ORDER_SIZE_USD = float(os.getenv("ORDER_SIZE_USD","50.0"))
-    VENUE_EXPOSURE_CAP_PCT = float(os.getenv("VENUE_EXPOSURE_CAP_PCT","40"))
-    MIN_CARRY_APR = float(os.getenv("MIN_CARRY_APR","8.0"))
+    EQUITY_USD = float(os.getenv("EQUITY_USD", "5000"))
+    API_KEY_BINANCE = os.getenv("API_KEY_BINANCE", "")
+    API_SECRET_BINANCE = os.getenv("API_SECRET_BINANCE", "")
+    API_KEY_BYBIT = os.getenv("API_KEY_BYBIT", "")
+    API_SECRET_BYBIT = os.getenv("API_SECRET_BYBIT", "")
+    SYMBOL = os.getenv("SYMBOL", "BTC/USDT")
+    POLL_SECONDS = int(os.getenv("POLL_SECONDS", "900"))
+    ORDER_SIZE_USD = float(os.getenv("ORDER_SIZE_USD", "50.0"))
+    VENUE_EXPOSURE_CAP_PCT = float(os.getenv("VENUE_EXPOSURE_CAP_PCT", "40"))
+    MIN_CARRY_APR = float(os.getenv("MIN_CARRY_APR", "8.0"))
     DYN_CARRY_ENABLED = _b("DYN_CARRY_ENABLED", True)
-    DYN_RAISE5 = float(os.getenv("DYN_RAISE5","10.0"))
-    DYN_RAISE3 = float(os.getenv("DYN_RAISE3","12.0"))
-    DELTA_THRESHOLD_USD = float(os.getenv("DELTA_THRESHOLD_USD","2.5"))
-    DELTA_TOL_PCT = float(os.getenv("DELTA_TOL_PCT","0.5"))
-    ERROR_TRIP_COUNT = int(os.getenv("ERROR_TRIP_COUNT","3"))
-    WATCHDOG_PAUSE_MINUTES = int(os.getenv("WATCHDOG_PAUSE_MINUTES","5"))
-    TELEGRAM_BOT_TOKEN = os.getenv("TELEGRAM_BOT_TOKEN","")
-    TELEGRAM_CHAT_ID = os.getenv("TELEGRAM_CHAT_ID","")
+    DYN_RAISE5 = float(os.getenv("DYN_RAISE5", "10.0"))
+    DYN_RAISE3 = float(os.getenv("DYN_RAISE3", "12.0"))
+    DELTA_THRESHOLD_USD = float(os.getenv("DELTA_THRESHOLD_USD", "2.5"))
+    DELTA_TOL_PCT = float(os.getenv("DELTA_TOL_PCT", "0.5"))
+    ERROR_TRIP_COUNT = int(os.getenv("ERROR_TRIP_COUNT", "3"))
+    WATCHDOG_PAUSE_MINUTES = int(os.getenv("WATCHDOG_PAUSE_MINUTES", "5"))
+    TELEGRAM_BOT_TOKEN = os.getenv("TELEGRAM_BOT_TOKEN", "")
+    TELEGRAM_CHAT_ID = os.getenv("TELEGRAM_CHAT_ID", "")
