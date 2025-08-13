@@ -1,0 +1,41 @@
+version: '3.8'
+services:
+  cryptobot:
+    image: python:3.12-slim
+    working_dir: /app
+    environment:
+      - BROKER_MODE=${BROKER_MODE}
+      - DRY_RUN=${DRY_RUN}
+      - EQUITY_USD=${EQUITY_USD}
+      - API_KEY_BINANCE=${API_KEY_BINANCE}
+      - API_SECRET_BINANCE=${API_SECRET_BINANCE}
+      - API_KEY_BYBIT=${API_KEY_BYBIT}
+      - API_SECRET_BYBIT=${API_SECRET_BYBIT}
+      - SYMBOL=${SYMBOL}
+      - POLL_SECONDS=${POLL_SECONDS}
+      - ORDER_SIZE_USD=${ORDER_SIZE_USD}
+      - VENUE_EXPOSURE_CAP_PCT=${VENUE_EXPOSURE_CAP_PCT}
+      - MIN_CARRY_APR=${MIN_CARRY_APR}
+      - DYN_CARRY_ENABLED=${DYN_CARRY_ENABLED}
+      - DYN_RAISE5=${DYN_RAISE5}
+      - DYN_RAISE3=${DYN_RAISE3}
+      - DELTA_THRESHOLD_USD=${DELTA_THRESHOLD_USD}
+      - DELTA_TOL_PCT=${DELTA_TOL_PCT}
+      - ERROR_TRIP_COUNT=${ERROR_TRIP_COUNT}
+      - WATCHDOG_PAUSE_MINUTES=${WATCHDOG_PAUSE_MINUTES}
+      - TELEGRAM_BOT_TOKEN=${TELEGRAM_BOT_TOKEN}
+      - TELEGRAM_CHAT_ID=${TELEGRAM_CHAT_ID}
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./:/app
+    healthcheck:
+      test: ["CMD-SHELL", "python - << 'PY'\nimport urllib.request,sys;\nurl='http://localhost:8000/health';\nresp=urllib.request.urlopen(url, timeout=5);\nprint(resp.status);\nsys.exit(0 if resp.status==200 else 1)\nPY"]
+      interval: 60s
+      timeout: 180s
+      retries: 3
+      start_period: 30s
+    restart: always
+    command: >
+      bash -lc "pip install --no-cache-dir -r requirements.txt &&
+      python -m bot.main"

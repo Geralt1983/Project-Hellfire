@@ -1,0 +1,13 @@
+from prometheus_client import Gauge, Counter, start_http_server
+carry_apr_gauge = Gauge("carry_apr_current", "Current best carry APR")
+min_carry_threshold = Gauge("min_carry_threshold", "Active min carry APR threshold")
+orders_total = Counter("orders_total", "Orders total")
+errors_total = Counter("errors_total", "Errors total")
+open_positions = Gauge("open_positions", "Open hedges")
+net_delta_usd = Gauge("net_delta_usd", "Net delta USD")
+venue_exposure_pct = Gauge("venue_exposure_pct", "Venue exposure pct", ["venue"])
+watchdog_trips_total = Counter("watchdog_trips_total", "Watchdog trips total")
+rebalance_count = Counter("rebalance_count_total", "Rebalances total")
+delta_drift_pct = Gauge("delta_drift_pct", "Delta drift percent of equity")
+metrics_updated_ts = Gauge("metrics_updated_ts", "Unix time of last metrics update")
+def boot_metrics(port:int=8000): start_http_server(port)
