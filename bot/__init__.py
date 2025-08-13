@@ -1,1 +1,1 @@
-"""Bot package for crypto carry trading."""
+"""Core package for the Project-Hellfire trading bot - crypto carry trading."""
