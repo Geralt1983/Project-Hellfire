@@ -1,15 +1,36 @@
-import json, time, aiohttp.web
-def build_app(shared):
-    async def metrics(request):
-        from prometheus_client import REGISTRY, generate_latest, CONTENT_TYPE_LATEST
+"""HTTP endpoints for Prometheus metrics and application health checks."""
+
+import time
+from typing import Any, Dict
+
+from aiohttp import web
+from prometheus_client import CONTENT_TYPE_LATEST, REGISTRY, generate_latest
+
+
+def build_app(shared: Dict[str, Any]) -> web.Application:
+    """Create an ``aiohttp`` application exposing /metrics and /health."""
+
+    async def metrics(_: web.Request) -> web.Response:
+        """Return Prometheus metrics for scraping."""
         output = generate_latest(REGISTRY)
-        return aiohttp.web.Response(body=output, headers={"Content-Type":CONTENT_TYPE_LATEST})
-    async def health(request):
-        now=time.time(); last=shared["watchdog"].last_metrics_ts; age=now-last
-        status = "ok" if age <= shared["age_limit"] and shared["watchdog"].paused_until <= now else "unhealthy"
-        code = 200 if status=="ok" else 503
-        body = {"status":status,"watchdog":"green" if shared["watchdog"].paused_until<=now else "red","metrics_age_sec": int(age)}
-        return aiohttp.web.json_response(body, status=code)
-    app=aiohttp.web.Application()
-    app.add_routes([aiohttp.web.get("/metrics", metrics), aiohttp.web.get("/health", health)])
+        return web.Response(body=output, headers={"Content-Type": CONTENT_TYPE_LATEST})
+
+    async def health(_: web.Request) -> web.Response:
+        """Return JSON describing application health."""
+        now = time.time()
+        watchdog = shared["watchdog"]
+        age = now - watchdog.last_metrics_ts
+        paused = watchdog.paused_until > now
+
+        status = "ok" if age <= shared["age_limit"] and not paused else "unhealthy"
+        body = {
+            "status": status,
+            "watchdog": "green" if not paused else "red",
+            "metrics_age_sec": int(age),
+        }
+        code = 200 if status == "ok" else 503
+        return web.json_response(body, status=code)
+
+    app = web.Application()
+    app.add_routes([web.get("/metrics", metrics), web.get("/health", health)])
     return app
